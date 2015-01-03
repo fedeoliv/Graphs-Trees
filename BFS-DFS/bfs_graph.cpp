@@ -6,6 +6,7 @@ using namespace std;
     Breadth-first search is appropriate if we don't care which order we visit
     the vertices and edges of the graph, so any order is appropriate.
     Also, we can use it if we are interested in shortest paths on unweighted graphs.
+    Unlike trees, graphs may contain cycles, so we may come to the same node again.
 */
 
 /* This class represents a directed graph using adjacency list representation. */
