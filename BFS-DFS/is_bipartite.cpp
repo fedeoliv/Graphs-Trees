@@ -8,7 +8,7 @@ using namespace std;
     While assigning colors, if we find a neighbor which is colored with same color
     as current vertex, then the graph is not bipartite. */
 
-bool isBipartite(int G[][MAXV], int src) {
+bool is_bipartite(int G[][MAXV], int src) {
     /*  Create a color array to store colors assigned to all vertices.
         Vertex number is used as index in this array. The value '-1' of colorArr[i]
         is used to indicate that no color is assigned to vertex 'i'.
@@ -61,6 +61,8 @@ int main() {
     for(int i = 0; i < MAXV; i++)
         for(int j = 0; j < MAXV; j++) scanf("%d", &G[i][j]);
 
-    isBipartite(G, 0) ? cout << "Yes" : cout << "No";
+    if(is_bipartite(G, G[0][0])) printf("Yes\n");
+    else printf("No\n");
+
     return 0;
 }
