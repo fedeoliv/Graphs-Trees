@@ -60,8 +60,8 @@ int main() {
 
     for(int i = 0; i < MAXV; i++)
         for(int j = 0; j < MAXV; j++) scanf("%d", &G[i][j]);
-
-    if(is_bipartite(G, G[0][0])) printf("Yes\n");
+        
+    if(is_bipartite(G, 0) printf("Yes\n");
     else printf("No\n");
 
     return 0;
