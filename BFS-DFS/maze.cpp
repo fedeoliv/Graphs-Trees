@@ -60,7 +60,7 @@ void traverse(int i, int j, int n, int m) {
 }
 
 int main() {
-    freopen("a.txt", "r", stdin);
+    	freopen("a.txt", "r", stdin);
 	int t, m, n, invalid, points;
 
 	for(scanf("%d", &t); t--;) {
@@ -91,8 +91,8 @@ int main() {
 			continue;
 		}
 
-        /* Printing the initial position */
-        printf("%d %d\n", e[1][0], e[1][1]);
+        	/* Printing the initial position */
+        	printf("%d %d\n", e[1][0], e[1][1]);
 
 		traverse(e[0][0], e[0][1], n, m);
 
