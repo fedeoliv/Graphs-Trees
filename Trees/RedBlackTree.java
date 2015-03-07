@@ -7,15 +7,15 @@ public class RedBlackTree {
 
 	private class Node {
 		private int key;           	// key
-        private Node left, right;  	// links to left and right subtrees
-        private boolean color;     	// color of parent link
-        private int N;             	// subtree count
+        	private Node left, right;  	// links to left and right subtrees
+        	private boolean color;     	// color of parent link
+        	private int N;             	// subtree count
 		
 		public Node(int key, boolean color, int N) {
-            this.key = key;
-            this.color = color;
-            this.N = N;
-        }
+            		this.key = key;
+            		this.color = color;
+        		 this.N = N;
+		 }
 	}
 	
 	private boolean isRed(Node x) {
