@@ -1,10 +1,8 @@
-package analg.trees;
-
+/* BFS is levelOrder() and DFS is any other type of order. Print all leaf using printLeaf().*/
 class BinaryTree {
 	class Node {
-		String nome;
-		String fone;
-		Node linke,linkd;
+		int data;
+		Node left, right;
 	}
 	
 	Node root;
@@ -13,185 +11,161 @@ class BinaryTree {
 		root = null;
 	}
 
-	void insert(String nm, String fn) {
-		root = insert(root, nm, fn);
+	void insert(int data) {
+		root = insert(root, data);
 	}
 
-	Node insert(Node root, String nm, String fn) {
+	Node insert(Node root, int data) {
 		if(root == null){
 			Node aux = new Node();
-			aux.nome = nm;
-			aux.fone = fn;
-			aux.linke = null;
-			aux.linkd = null;
+			aux.data = data;
+			aux.left = null;
+			aux.right = null;
 			return aux;
 		}
 		
-		if(root.nome.compareTo(nm) > 0) {
-			root.linke = insert(root.linke, nm, fn);
+		if(root.data > data) {
+			root.left = insert(root.left, data);
 			return root;
 		}	
 		
-		if(root.nome.compareTo(nm) < 0) {
-			root.linkd = insert(root.linkd, nm, fn);
+		if(root.data < data) {
+			root.right = insert(root.right, data);
 			return root;
 		}	
 		
-		System.out.println("Nome já existe!");
+		System.out.println("Key has already been included.");
 		return root;
 	}
 	
-	void search(String nome) {
-		System.out.println("\n2) Busca (" + nome + "): " + search(root, nome));
+	void search(int data) {
+		System.out.println(search(root, data));
 	}
 	
-	String search(Node root, String nome) {
-		// Se a árvore estiver vazia, retorna "0".
-		if(root == null) return "0";
+	int search(Node root, int data) {
+		if(root == null) return -1;
+		if(root.data == data) return root.data;
 		
-		// Se o nome for encontrado, retornamos seu telefone.
-		if(root.nome.equals(nome)) return root.fone;
-		
-		// Se o nome passado por parâmetro for menor que a root, percorremos à esquerda.
-		// Senão, percorremos à direita.
-		if(root.nome.compareTo(nome) > 0) 
-			return search(root.linke, nome);
-		else return search(root.linkd, nome);
+		if(root.data > data) return search(root.left, data);
+		else return search(root.right, data);
 	}
 	
-	void excluir(String nome) {
-		root = excluir(root, nome);
-		System.out.print("3) Exclusão (" + nome + "): ");
-		emOrdem();
+	void excluir(int data) {
+		root = excluir(root, data);
 	}
 	
-	Node excluir(Node r, String nome) {
-		// Se a função de busca retornar "0", é porque o nome não foi encontrado.
-		if(!search(r, nome).equals("0")) {
-			
-			// compareTo = 0 significa que o nome foi encontrado. 
-			// Nesse caso, faremos as 3 verificações possíveis de exclusão.
-			if (r.nome.compareTo(nome) == 0) {
-				// Se linke = linkd, significa que o elemento que estamos excluindo
-				// é a root da árvore. Basta dizermos que o nodo é null, já que a root é 
-				// o ultimo elemento da árvore.
-				if (r.linke == r.linkd) return null;
+	Node excluir(Node r, int data) {
+		if(search(r, data) != -1) {
+			if (r.data == data) {
+				if (r.left == r.right) return null;
+				if (r.left == null) return r.right;
+				if (r.right == null) return r.left;
 				
-				// Se na esquerda não houver valor, colocamos o da direita pra ocupar o seu lugar.
-				if (r.linke == null) return r.linkd;
+				Node aux = r.right;
+				while (aux.left != null) aux = aux.left;
 				
-				// Se na direita não houver valor, colocamos o da esquerda pra ocupar o seu lugar.
-				if (r.linkd == null) return r.linke;
-				
-				// Criando o link entre os elementos da direita com os da esquerda.
-				// A partir dos elementos da direita da árvore, percorremos todos os elementos
-				// da esquerda dele, até chegarmos no último.
-				// Quando estamos no último valor, linkamos ele com a árvore à esquerda.
-				Node aux = r.linkd;
-				
-				while (aux.linke != null) aux = aux.linke;
-				
-				aux.linke = r.linke;
+				aux.left = r.left;
 				return aux;
 				
-			} else if (r.nome.compareTo(nome) < 0) {
-				// Se o nome na árvore for menor que nome passado por parâmetro, percorre à direita.
-				r.linkd = excluir(r.linkd, nome);
-			} else {
-				// Se o nome na árvore for maior que nome passado por parâmetro, percorre à esquerda.
-				r.linke = excluir(r.linke, nome);
-			}
+			} else if (r.data < data) r.right = excluir(r.right, data);
+			else r.left = excluir(r.left, data);
 		}
 		
 		return r;
 	}
 	
 	void height() {
-		System.out.println("4) Altura: " + height(root));
+		System.out.println(height(root));
 	}
 	
 	int height(Node r) {
-		// Se a árvore está vazia, a altura é 0.
-	    if (r == null) return 0;
+		if (r == null) return 0;
 	    
-	    // Recursivamente, contamos a quantidade de links que temos da esquerda e da direita.
-	    // Se tivermos mais links da esquerda, somamos +1 na esquerda, senão +1 para a direita.
-	    // Essa verificação é para sabermos se estamos no próximo nível da árvore ou não.
-	    int left = height(r.linke);
-	    int right = height(r.linkd);
+		int left = height(r.left);
+	    int right = height(r.right);
 	    
 	    if(left > right) return left + 1;
 	    else return right + 1;
 	}
 	
-	void preOrdem(){
-		System.out.print("PreOrdem: [");
-		preOrdemAux(root);
-		System.out.println(" ]");
+	void preOrder(){
+		preOrder(root);
 	}
 	
-	void preOrdemAux(Node root){
-		if(root !=null) {
-			System.out.print(" "+root.nome);
-			preOrdemAux(root.linke);
-			preOrdemAux(root.linkd);
-		}
-	} 				
-
-	void emOrdem(){
-		System.out.print("EmOrdem:  [");
-		emOrdemAux(root);
-		System.out.println(" ]");
-	}
-
-	void emOrdemAux(Node root){
+	void preOrder(Node root){
 		if(root != null) {
-			emOrdemAux(root.linke);
-			System.out.print(" "+root.nome);
-			emOrdemAux(root.linkd);
+			System.out.print(root.data + " ");
+			preOrder(root.left);
+			preOrder(root.right);
 		}
 	} 				
 
-	void posOrdem(){
-		System.out.print("PosOrdem: [");
-		posOrdemAux(root);
-		System.out.println(" ]");
+	void inOrder(){
+		inOrder(root);
 	}
 
-	void posOrdemAux(Node root){
+	void inOrder(Node root){
+		if(root != null) {
+			inOrder(root.left);
+			System.out.print(root.data + " ");
+			inOrder(root.right);
+		}
+	} 				
+
+	void postOrder(){
+		postOrder(root);
+	}
+
+	void postOrder(Node root){
 		if(root != null){
-			posOrdemAux(root.linke);
-			posOrdemAux(root.linkd);
-			System.out.print(" "+root.nome);
+			postOrder(root.left);
+			postOrder(root.right);
+			System.out.print(root.data + " ");
 		}
 	}
 	
-	void listar() {
-		System.out.print("\n1) Nós folha: ");
-		listar(root);
+	void levelOrder(){
+		levelOrder(root);
 	}
 	
-	void listar(Node r) {
-		// Percorremos primeiro os da esquerda e depois os da direita.
-		// Se linke e linkd forem nulos, é porque são nós folha.
+	void levelOrder(Node root) {
+		int h = height(root);
+		
+		for(int i = 0; i < h; i++) printLevel(root, i);
+	}
+	
+	void printLevel(Node raiz, int level) {
+		if(raiz == null) return;
+		if(level == 0) System.out.print(raiz.data + " ");
+		else {
+			printLevel(raiz.left, level - 1);
+			printLevel(raiz.right, level - 1);
+		}
+	}
+	
+	void printLeaf() {
+		printLeaf(root);
+	}
+	
+	void printLeaf(Node r) {
 		if (r != null) {
-			if (r.linke == null && r.linkd == null)
-				System.out.print("[" + r.nome + " - " + r.fone + "] ");
+			if (r.left == null && r.right == null)
+				System.out.print(r.data + " ");
 
-			listar(r.linke);
-			listar(r.linkd);
+			printLeaf(r.left);
+			printLeaf(r.right);
 		}
 	}
 	
 	public static void main(String args[]) {
-		BinaryTree a1 = new BinaryTree();
-		a1.insert("Lidia", "011 9999999");
-		a1.preOrdem();
-		a1.emOrdem();
-		a1.posOrdem();
-		a1.insert("Marcio", "011 8888888");
-		a1.preOrdem();
-		a1.emOrdem();
-		a1.posOrdem();
+		BinaryTree b = new BinaryTree();
+		b.insert(20);
+		b.insert(8);
+		b.insert(4);
+		b.insert(12);
+		b.insert(10);
+		b.insert(14);
+		b.insert(22);
+		b.insert(25);
 	}	
-}				
+}
