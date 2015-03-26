@@ -1,5 +1,4 @@
-package analg.graphs;
-
+/* Prim's MST is only for connected graphs. If a graph is disconnected, we need to use Kruskal MST. */
 public class PrimAdjList {
 	private static final class Node {
 		int data;
