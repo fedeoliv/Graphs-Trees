@@ -1,17 +1,17 @@
 import java.util.Scanner;
 
-/* Input:	10		Output: 4 3
-			4 3				3 8
-			3 8				6 5
-			6 5				9 4
-			9 4				2 1
-			2 1				5 0
-			8 9				7 2
-			5 0				6 1
-			7 2
-			6 1				2 components
-			1 0
-			6 7 */
+/* Input:	10	Output: 4 3
+		4 3		3 8
+		3 8		6 5
+		6 5		9 4
+		9 4		2 1
+		2 1		5 0
+		8 9		7 2
+		5 0		6 1
+		7 2
+		6 1		2 components
+		1 0
+		6 7 */
 
 public class UnionFind {
     private int[] parent;   // parent[i] = parent of i
