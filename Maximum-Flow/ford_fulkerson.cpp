@@ -1,111 +1,115 @@
 #include <stdio.h>
-#include <limits.h>
-#include <string.h>
-#include <queue>
-#define MAXV 6
+#include <climits>
+#include <algorithm>
 using namespace std;
 
-/*  Returns true if there is a path from source 's' to sink 't' in
-    residual graph. Also fills parent[] to store the path */
-int bfs(int rGraph[MAXV][MAXV], int s, int t, int parent[]) {
-    // Create a visited array and mark all vertices as not visited
-    bool visited[MAXV];
-    memset(visited, 0, sizeof(visited));
+/*  Given a graph with N (2 ≤ N ≤ 5,000) vertices numbered 1 to N and M (1 ≤ M ≤ 30,000) undirected, weighted edges,
+    compute the maximum flow / minimum cut from vertex 1 to vertex N.
 
-    // Create a queue, enqueue source vertex and mark source vertex as visited
-    queue <int> q;
-    q.push(s);
-    visited[s] = true;
-    parent[s] = -1;
+    Input:      Output:
+    4 6         5
+    1 2 3
+    2 3 4
+    3 1 2
+    2 2 5
+    3 4 3
+    4 3 3 */
 
-    // Standard BFS Loop
-    while(!q.empty()) {
-        int u = q.front();
-        q.pop();
+struct flow_graph {
+	int MAX_V, E, s, t, head, tail;
+	int *cap, *to, *next, *last, *dist, *q, *now;
 
-        for(int v = 0; v < MAXV; v++) {
-            if(visited[v] == false && rGraph[u][v] > 0) {
-                q.push(v);
-                parent[v] = u;
-                visited[v] = true;
-            }
-        }
-    }
+	flow_graph(int V = 0, int MAX_E = 0) {
+		MAX_V = V;
+		E = 0;
+		cap = new int[2 * MAX_E];
+		to = new int[2 * MAX_E];
+		next = new int[2 * MAX_E];
+		last = new int[MAX_V];
+		q = new int[MAX_V];
+		dist = new int[MAX_V];
+		now = new int[MAX_V];
+		fill(last, last + MAX_V, -1);
+	}
 
-    // If we reached sink in BFS starting from source, then return true, else false
-    return (visited[t] == true);
-}
+	void add_edge(int u, int v, int uv, int vu = 0) {
+		/* Attention: this is undirected graph! */
+		to[E] = v, cap[E] = uv, next[E] = last[u];
+		last[u] = E++;
 
-/*  A DFS based function to find all reachable vertices from s.
-    The function marks visited[i] as true if i is reachable from s. */
-void dfs(int rGraph[MAXV][MAXV], int s, bool visited[]) {
-    visited[s] = true;
-    for (int i = 0; i < MAXV; i++)
-       if(rGraph[s][i] && !visited[i])
-           dfs(rGraph, i, visited);
-}
+		to[E] = u, cap[E] = vu, next[E] = last[v];
+		last[v] = E++;
+	}
 
-// Returns tne maximum flow from s to t in the given graph
-int fordFulkerson(int graph[MAXV][MAXV], int s, int t) {
-    int u, v;
-    int rGraph[MAXV][MAXV];     // Residual graph
+	bool bfs() {
+		fill(dist, dist + MAX_V, -1);
+		head = tail = 0;
+		q[tail] = t;
+		++tail;
+		dist[t] = 0;
 
-    for(u = 0; u < MAXV; u++)
-        for(v = 0; v < MAXV; v++)
-             rGraph[u][v] = graph[u][v];
+		while (head < tail) {
+			int v = q[head];
+			++head;
+			for (int e = last[v]; e != -1; e = next[e]) {
+				if (cap[e ^ 1] > 0 && dist[to[e]] == -1) {
+					q[tail] = to[e];
+					++tail;
+					dist[to[e]] = dist[v] + 1;
+				}
+			}
+		}
+		return dist[s] != -1;
+	}
 
-    int parent[MAXV];  // This array is filled by BFS and to store path
-    int max_flow = 0;  // There is no flow initially
+	int dfs(int v, int f) {
+		if (v == t) return f;
 
-    // Augment the flow while tere is path from source to sink
-    while(bfs(rGraph, s, t, parent)) {
-        /*  Find minimum residual capacity of the edhes along the path filled by BFS.
-            Or we can say find the maximum flow through the path found. */
-        int path_flow = INT_MAX;
+		for (int &e = now[v]; e != -1; e = next[e]) {
+			if (cap[e] > 0 && dist[to[e]] == dist[v] - 1) {
+				int ret = dfs(to[e], min(f, cap[e]));
 
-        for(v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            path_flow = min(path_flow, rGraph[u][v]);
-        }
+				if (ret > 0) {
+					cap[e] -= ret;
+					cap[e ^ 1] += ret;
+					return ret;
+				}
+			}
+		}
 
-        // Update residual capacities of the edges and reverse edges along the path
-        for(v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            rGraph[u][v] -= path_flow;
-            rGraph[v][u] += path_flow;
-        }
+		return 0;
+	}
 
-        // Add path flow to overall flow
-        max_flow += path_flow;
-    }
+	long long compute_max_flow(int source, int sink) {
+		s = source;
+		t = sink;
+		long long f = 0;
+		int x;
 
-    printf("Minimum cut:\n");
-    // Flow is maximum now, find vertices reachable from s
-    bool visited[MAXV];
-    memset(visited, false, sizeof(visited));
-    dfs(rGraph, s, visited);
+		while (bfs()) {
+			for (int i = 0; i < MAX_V; ++i) now[i] = last[i];
 
-    // Print all edges that are from a reachable vertex to
-    // non-reachable vertex in the original graph
-    for (int i = 0; i < MAXV; i++)
-      for (int j = 0; j < MAXV; j++)
-         if (visited[i] && !visited[j] && graph[i][j])
-              printf("%d - %d\n", i, j);
-              //cout << i << " - " << j << endl;
-
-    // Return the overall flow
-    return max_flow;
-}
+			while (true) {
+				x = dfs(s, INT_MAX);
+				if(x == 0) break;
+				f += x;
+			}
+		}
+		return f;
+	}
+} graph;
 
 int main() {
-    // Let us create a graph shown in the above example
-    int graph[MAXV][MAXV] = { {0, 16, 13, 0, 0, 0},
-                        {0, 0, 10, 12, 0, 0},
-                        {0, 4, 0, 0, 14, 0},
-                        {0, 0, 9, 0, 0, 20},
-                        {0, 0, 0, 7, 0, 4},
-                        {0, 0, 0, 0, 0, 0}
-                      };
-    printf("Maximum flow: %d\n", fordFulkerson(graph, 0, 5));
-    return 0;
+	int V, E, u, v, c;
+
+	scanf("%d %d", &V, &E);
+	graph = flow_graph(V, E);
+
+	for (int i = 0; i < E; ++i) {
+        scanf("%d %d %d", &u, &v, &c);
+		graph.add_edge(u - 1, v - 1, c, c);
+	}
+
+	printf("%lld\n", graph.compute_max_flow(0, V - 1));
+	return 0;
 }
